@@ -12,4 +12,12 @@
 @interface TPKeyboardAvoidingTableView : UITableView <UITextFieldDelegate, UITextViewDelegate>
 - (BOOL)focusNextTextField;
 - (void)scrollToActiveTextField;
+/**
+ Table views sometimes interact negatively with keeping the cursor visible while typing.
+ This method allows clients to disable that functionality.
+ 
+ @param keepCursorVisible 'YES' - keeps the cursor visible while typing
+                          'NO'  - doesn't keep cursor visible while typing
+ */
+- (void)keepCursorVisibleWhileTyping:(BOOL)keepCursorVisible;
 @end

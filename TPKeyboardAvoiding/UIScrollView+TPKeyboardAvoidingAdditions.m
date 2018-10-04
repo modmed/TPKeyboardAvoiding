@@ -51,7 +51,7 @@ static const int kStateKey;
     
     state.animationDuration = [[info objectForKey:kUIKeyboardAnimationDurationUserInfoKey] doubleValue];
 
-    CGRect keyboardRect = [self convertRect:[[info objectForKey:_UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
+    CGRect keyboardRect = [[info objectForKey:_UIKeyboardFrameEndUserInfoKey] CGRectValue];
     if (CGRectIsEmpty(keyboardRect)) {
         return;
     }
@@ -338,7 +338,7 @@ static const int kStateKey;
 - (UIEdgeInsets)TPKeyboardAvoiding_contentInsetForKeyboard {
     TPKeyboardAvoidingState *state = self.keyboardAvoidingState;
     UIEdgeInsets newInset = self.contentInset;
-    CGRect keyboardRect = state.keyboardRect;
+    CGRect keyboardRect = [self convertRect:state.keyboardRect fromView:nil];
     newInset.bottom = keyboardRect.size.height - MAX((CGRectGetMaxY(keyboardRect) - CGRectGetMaxY(self.bounds)), 0);
     return newInset;
 }
@@ -383,22 +383,23 @@ static const int kStateKey;
         UIView <UITextInput> *textInput = (UIView <UITextInput>*)view;
         UITextPosition *caretPosition = [textInput selectedTextRange].start;
         if (caretPosition) {
-            CGRect caretRect = [self convertRect:[textInput caretRectForPosition:caretPosition] fromView:textInput];
-
-            // Attempt to center the cursor in the visible space
-            // pixels above the view, then substitute kMinimumScrollOffsetPadding
-            padding = (viewAreaHeight - caretRect.size.height) / 2;
-
-            // But if that means there will be less than kMinimumScrollOffsetPadding
-            // pixels above the view, then substitute kMinimumScrollOffsetPadding
-            if (padding < kMinimumScrollOffsetPadding ) {
-                padding = kMinimumScrollOffsetPadding;
+            // if the cursor isn't currently in the visible area (e.g. between the top
+            // of the keyboard and the top of the scrollview's frame) adjust the offset
+            // so the cursor is positioned just above the keyboard.  We do this instead
+            // of centering it in the visible space since that could place the cursor behind
+            // a table view's section header which the scroll view has no knowledge of.
+            CGRect cursorRect = [textInput caretRectForPosition:textInput.selectedTextRange.start];
+            cursorRect = [view convertRect:cursorRect toView:self];
+            CGRect visibleRect = self.bounds;
+            visibleRect.size.height = viewAreaHeight;
+            if (!CGRectEqualToRect(cursorRect, CGRectIntersection(cursorRect, visibleRect))) {
+                // cursor isn't visible so we need to adjust to show it... make sure
+                // cursor bottom is visible
+                CGFloat maxCursorY = CGRectGetMaxY(cursorRect);
+                offset = (maxCursorY + 2.0) - viewAreaHeight;
+            } else {
+                offset = self.bounds.origin.y;
             }
-
-            // Ideal offset places the subview rectangle origin "padding" points from the top of the scrollview.
-            // If there is a top contentInset, also compensate for this so that subviewRect will not be placed under
-            // things like navigation bars.
-            offset = caretRect.origin.y - padding - contentInset.top;
         } else {
             centerViewInViewableArea();
         }
