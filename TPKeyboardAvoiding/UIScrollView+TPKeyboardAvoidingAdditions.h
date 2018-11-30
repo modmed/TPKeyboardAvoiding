@@ -19,4 +19,7 @@
 - (void)TPKeyboardAvoiding_assignTextDelegateForViewsBeneathView:(UIView*)view;
 - (UIView*)TPKeyboardAvoiding_findFirstResponderBeneathView:(UIView*)view;
 -(CGSize)TPKeyboardAvoiding_calculatedContentSizeFromSubviewFrames;
+
+- (CGFloat)keyboardAvoidingPadding;
+- (void)setKeyboardAvoidingPadding:(CGFloat)newPadding;
 @end

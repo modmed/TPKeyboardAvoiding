@@ -16,6 +16,7 @@ static const CGFloat kMinimumScrollOffsetPadding = 20;
 static NSString * const kUIKeyboardAnimationDurationUserInfoKey = @"UIKeyboardAnimationDurationUserInfoKey";
 
 static const int kStateKey;
+static const int kPaddingKey;
 
 #define _UIKeyboardFrameEndUserInfoKey (&UIKeyboardFrameEndUserInfoKey != NULL ? UIKeyboardFrameEndUserInfoKey : @"UIKeyboardBoundsUserInfoKey")
 
@@ -43,6 +44,15 @@ static const int kStateKey;
 #endif
     }
     return state;
+}
+
+- (CGFloat)keyboardAvoidingPadding {
+    NSNumber *padding = objc_getAssociatedObject(self, &kPaddingKey) ?: @(2.0f);
+    return padding.floatValue;
+}
+
+- (void)setKeyboardAvoidingPadding:(CGFloat)newPadding {
+    objc_setAssociatedObject(self, &kPaddingKey, @(newPadding), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)TPKeyboardAvoiding_keyboardWillShow:(NSNotification*)notification {
@@ -396,7 +406,7 @@ static const int kStateKey;
                 // cursor isn't visible so we need to adjust to show it... make sure
                 // cursor bottom is visible
                 CGFloat maxCursorY = CGRectGetMaxY(cursorRect);
-                offset = (maxCursorY + 2.0) - viewAreaHeight;
+                offset = (maxCursorY + self.keyboardAvoidingPadding) - viewAreaHeight;
             } else {
                 offset = self.bounds.origin.y;
             }
