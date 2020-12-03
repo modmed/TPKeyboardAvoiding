@@ -65,8 +65,10 @@ static const int kPaddingKey;
     
     state.animationDuration = [[info objectForKey:kUIKeyboardAnimationDurationUserInfoKey] doubleValue];
 
-    CGRect beginKeyboardRect = [self convertRect:[[info objectForKey:_UIKeyboardFrameBeginUserInfoKey] CGRectValue] fromView:nil];
-    CGRect endKeyboardRect = [self convertRect:[[info objectForKey:_UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
+//    CGRect beginKeyboardRect = [self convertRect:[[info objectForKey:_UIKeyboardFrameBeginUserInfoKey] CGRectValue] fromView:nil];
+//    CGRect endKeyboardRect = [self convertRect:[[info objectForKey:_UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
+    CGRect beginKeyboardRect = [[info objectForKey:_UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGRect endKeyboardRect = [[info objectForKey:_UIKeyboardFrameEndUserInfoKey] CGRectValue];
     if (CGRectIsEmpty(endKeyboardRect)) {
         self.keyboardAvoidingState.keyboardVisible = NO;
         return;
@@ -362,7 +364,8 @@ static const int kPaddingKey;
 - (UIEdgeInsets)TPKeyboardAvoiding_contentInsetForKeyboard {
     TPKeyboardAvoidingState *state = self.keyboardAvoidingState;
     UIEdgeInsets newInset = self.contentInset;
-    CGRect keyboardRect = state.keyboardRect;
+//    CGRect keyboardRect = state.keyboardRect;
+    CGRect keyboardRect = [self convertRect:state.keyboardRect fromView:nil];
 
     if (keyboardRect.size.height == 0) {
         newInset.bottom = state.priorInset.bottom;
