@@ -426,7 +426,7 @@ static const int kPaddingKey;
             CGRect cursorRect = [textInput caretRectForPosition:textInput.selectedTextRange.start];
             cursorRect = [view convertRect:cursorRect toView:self];
             CGRect visibleRect = self.bounds;
-            visibleRect.size.height = viewAreaHeight;
+            visibleRect.size.height = viewAreaHeight - self.keyboardAvoidingPadding;
             if (!CGRectEqualToRect(cursorRect, CGRectIntersection(cursorRect, visibleRect))) {
                 // cursor isn't visible so we need to adjust to show it... make sure
                 // cursor bottom is visible
